@@ -74,7 +74,9 @@
     return `<p>떼어낸 조각의 왼쪽 끝을 맞췄어요. 오른쪽 끝도 같나요?</p><svg class="bar-overlay" viewBox="0 0 600 160" role="img" aria-label="세 조각을 위아래로 놓고 길이를 비교한 모습">${widths(cuts).map((w,i)=>`<rect x="1" y="${i*52+2}" width="${w*598}" height="42" fill="${colors[i]}" stroke="#17304d" stroke-width="2"/>`).join('')}</svg>`;
   }
   // 도형 위의 44px 손잡이는 손가락 드래그와 방향키를 모두 지원합니다.
-  function editor(container, shape, data, onChange) {
+  function editor(container, shape, data, onChange, guideCount = 0) {
+    const guides = Array.from({length: Math.max(0, guideCount - 1)}, (_, i) =>
+      shape === 'pizza' ? pizzaPosition((i + 1) / guideCount) : (i + 1) / guideCount);
     const shell = document.createElement('div'); shell.className = `cut-editor ${shape === 'pizza' ? 'pizza-editor' : 'stick-editor'}`;
     const picture = document.createElement('div'); picture.className = 'cut-picture'; shell.append(picture);
     container.append(shell);
@@ -85,9 +87,9 @@
       function move(position) {
         const low = index ? data.cuts[index-1] + .06 : .08;
         const high = index < data.cuts.length-1 ? data.cuts[index+1] - .06 : .92;
-        const target = shape === 'pizza' ? pizzaPosition((index+1)/(data.cuts.length+1)) : (index+1)/(data.cuts.length+1);
+        const target = guides.length ? guides.reduce((a, b) => Math.abs(a-position) < Math.abs(b-position) ? a : b) : shape === 'pizza' ? pizzaPosition((index+1)/(data.cuts.length+1)) : (index+1)/(data.cuts.length+1);
         const value = Math.max(low, Math.min(high, position));
-        data.cuts[index] = Math.abs(value-target) <= .014 ? target : value;
+        data.cuts[index] = target >= low && target <= high && Math.abs(value-target) <= .014 ? target : value;
         refresh(); onChange();
       }
       handle.addEventListener('pointerdown', event => {
@@ -108,6 +110,25 @@
     });
     function refresh() {
       picture.innerHTML = diagram(shape, data.cuts);
+      const svg = picture.querySelector('svg');
+      guides.forEach(position => {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const x = position * (shape === 'pizza' ? 240 : 600);
+        const halfHeight = shape === 'pizza' ? Math.sqrt(Math.max(0, 120 ** 2 - (x - 120) ** 2)) : 50;
+        const center = shape === 'pizza' ? 120 : 50;
+        line.setAttribute('d', `M${x} ${center-halfHeight}V${center+halfHeight}`);
+        line.setAttribute('stroke', '#ffffff');
+        line.setAttribute('stroke-width', '4');
+        line.setAttribute('stroke-dasharray', '7 6');
+        line.setAttribute('pointer-events', 'none');
+        line.classList.add('division-guide');
+        svg.append(line);
+        const ink = line.cloneNode(true);
+        ink.setAttribute('stroke', '#334155');
+        ink.setAttribute('stroke-width', '2');
+        ink.classList.remove('division-guide');
+        svg.append(ink);
+      });
       handles.forEach((handle, i) => {
         handle.style.left = `${data.cuts[i]*100}%`;
         handle.setAttribute('aria-valuenow', String(Math.round(data.cuts[i]*100)));
@@ -173,9 +194,9 @@
       }
       for(const count of [2,3,4])controls.append(button(`${count}등분`,()=>{data.count=count;show();}));show();
     } else if(stage===4) {
-      intro('빈 도형에 선을 추가하고 움직여, 같은 크기의 조각을 직접 만들어 보세요.');
+      intro('선을 추가한 뒤 손잡이를 점선에 맞춰 움직여 보세요. 점선은 같은 크기로 나눌 위치예요. 선을 추가하면 점선도 바뀌어요.');
       const shapes=area('zero-actions');const model=area();const controls=area('zero-actions');const message=feedback();
-      function draw(){model.replaceChildren();editor(model,data.shape,data,()=>{message.textContent='';});controls.querySelector('button').disabled=data.cuts.length>=3;}
+      function draw(){model.replaceChildren();editor(model,data.shape,data,()=>{message.textContent='';},Math.max(2,data.cuts.length+1));controls.querySelector('button').disabled=data.cuts.length>=3;}
       for(const [shape,name] of [['bar','막대'],['pizza','피자']])shapes.append(button(name,()=>{data.shape=shape;data.cuts=[];message.textContent='';draw();shapes.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.textContent===name)));}));
       controls.append(button('선 추가',()=>{addCut(data);message.textContent='';draw();}),button('선 모두 지우기',()=>{data.cuts=[];message.textContent='';draw();}),button('내가 나눈 것 확인',()=>{message.textContent=data.cuts.length===0?'선을 추가해 전체를 여러 조각으로 나누어 보세요.':equal(sharesFor(data.shape,data.cuts))?`🎉 ${data.cuts.length+1}등분 성공! 각 조각의 크기가 같아요.`:'조각들의 크기가 달라요. 선을 조금 움직여 다시 살펴보세요.';}));draw();
     } else {
@@ -184,10 +205,11 @@
         host.append(button('다음 단계: 1. 분수 만들기 →',()=>document.querySelector('[data-panel="explore"]').click()));
       } else {
         const mission=missions[data.index];intro(`미션 ${data.index+1} · ${mission.text}`);
+        intro('점선은 같은 크기로 나눌 위치예요. 선을 추가하고 손잡이를 점선에 맞춰 보세요.');
         const model=area();const controls=area('zero-actions');const message=feedback();
         const next=button(data.index===2?'마지막 결과 보기':'다음 미션',()=>{data.index++;data.cuts=[];data.passed=false;if(data.index===3)data.complete=true;buildStage();});next.hidden=!data.passed;host.append(next);
         function changed(){data.passed=false;next.hidden=true;message.textContent='';}
-        function draw(){model.replaceChildren();editor(model,mission.shape,data,changed);controls.querySelector('button').disabled=data.cuts.length>=3;}
+        function draw(){model.replaceChildren();editor(model,mission.shape,data,changed,mission.count);controls.querySelector('button').disabled=data.cuts.length>=3;}
         controls.append(button('선 추가',()=>{addCut(data);changed();draw();}),button('선 모두 지우기',()=>{data.cuts=[];changed();draw();}),button('미션 확인',()=>{
           data.passed=data.cuts.length+1===mission.count&&equal(sharesFor(mission.shape,data.cuts));
           next.hidden=!data.passed;message.textContent=data.passed?'성공! 모두 같은 크기로 나누었어요.':`조각이 ${mission.count}개인지, 각 조각의 크기가 같은지 살펴보세요.`;
@@ -207,3 +229,4 @@
   titles.forEach((title,i)=>{const b=button(`0-${i+1}`,()=>{stage=i;buildStage();});b.title=title;navigation.append(b);});
   buildStage();
 })();
+
