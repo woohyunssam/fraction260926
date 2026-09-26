@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>분수 탐험대 · 분수 막대</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='8' width='28' height='16' rx='3' fill='%23245bd6'/%3E%3Cpath d='M16 8v16' stroke='white' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css?v=12">
+  <script src="app.js?v=12" defer></script>
+  <script src="partition.js" defer></script>
+  <script src="reading.js" defer></script>
+  <script src="detective.js" defer></script>
+  <script src="comparison.js" defer></script>
+  <script src="beyond-one.js" defer></script>
+  <script src="grouping.js" defer></script>
+  <script src="equivalence.js?v=7" defer></script>
+  <script src="common-units.js?v=8.2" defer></script><script src="fraction-tools.js?v=11" defer></script><script src="fraction-duel.js?v=11" defer></script><script src="fraction-pieces.js?v=11" defer></script><script src="unlike-operations.js?v=12" defer></script><script src="fraction-master.js?v=12.3" defer></script></head>
+<body>
+  <main class="at-home">
+    <header id="learning-header" hidden><button type="button" id="go-home">← 홈으로</button><p class="brand">분수 탐험대</p><h1 tabindex="-1">똑같이 나누어 볼까요?</h1><p>하나의 전체를 공평하게 나누어 보세요.</p></header>
+    <nav id="home-menu" class="modes" aria-label="활동 선택"><button type="button" data-panel="partition" aria-pressed="false">0. 똑같이 나누기</button><button type="button" data-panel="explore" aria-pressed="false">1. 분수 만들기</button><button type="button" data-panel="reading" aria-pressed="false">2. 분수 읽기 — 숫자의 비밀</button><button type="button" data-panel="detective" aria-pressed="false">3. 분수 탐정 — 그림 속 분수</button><button type="button" data-panel="compare" aria-pressed="false">4. 분수 크기 비교</button><button type="button" data-panel="beyond" aria-pressed="false">5. 1을 넘어가도 분수일까?</button><button type="button" data-panel="grouping" aria-pressed="false">6. 전체를 묶어라!</button><button type="button" data-panel="equivalent" aria-pressed="false">7. 모양은 달라도 크기는 같아!</button><button type="button" data-panel="units" aria-pressed="false">8. 같은 크기의 조각을 만들어라!</button><button type="button" data-panel="duel" aria-pressed="false">9. 분수 대결 — 누가 더 클까?</button><button type="button" data-panel="pieces" aria-pressed="false">10. 분수 조각을 합쳐라!</button><button type="button" data-panel="operations" aria-pressed="false">11. 조각의 크기를 맞춰라!</button><button type="button" data-panel="master" aria-pressed="false">12. 분수 마스터 — 네 생각을 증명하라!</button></nav>
+    <section id="explore" hidden class="activity" aria-label="자유 탐험"><p class="hint">칸을 누르면 색칠되고, 다시 누르면 지워져요.</p><div class="comparison-scroll"><div id="bars"></div></div></section>
+    <section id="compare" hidden class="activity" aria-label="4. 분수 크기 비교">
+      <nav id="comparison-steps" aria-label="4단계 활동"></nav>
+      <div id="comparison-content"></div>
+    </section>
+    <section id="equivalent" hidden class="activity" aria-label="7. 모양은 달라도 크기는 같아!">
+      <nav id="equivalence-steps" aria-label="7단계 활동"></nav>
+      <div id="equivalence-tools" class="equivalence-tools"><label>몇 칸씩 <select id="equivalence-factor" aria-label="나누거나 묶을 칸 수"><option value="2">2</option><option value="3">3</option></select></label><button type="button" id="eq-split">✂️ 다시 나누기</button><button type="button" id="eq-merge">🧩 다시 묶기</button><button type="button" id="eq-overlay">👀 겹쳐 보기</button></div>
+      <p id="equivalence-tool-message" role="status" aria-live="polite"></p>
+      <div id="equivalence-content"></div>
+    </section>
+    <section id="partition" hidden class="activity" aria-label="0. 똑같이 나누기">
+      <nav id="zero-steps" aria-label="0단계 활동"></nav>
+      <div id="zero-content"></div>
+    </section>
+    <section id="reading" hidden class="activity" aria-label="2. 분수 읽기"><nav id="reading-steps" aria-label="2단계 활동"></nav><div id="reading-content"></div></section>
+    <section id="detective" hidden class="activity" aria-label="3. 분수 탐정"><nav id="detective-steps" aria-label="3단계 활동"></nav><div id="detective-content"></div></section>
+    <section id="beyond" hidden class="activity" aria-label="5. 1을 넘어가도 분수일까?"><nav id="beyond-steps" aria-label="5단계 활동"></nav><div id="beyond-content"></div></section>
+    <section id="grouping" hidden class="activity" aria-label="6. 전체를 묶어라!"><nav id="grouping-steps" aria-label="6단계 활동"></nav><div id="grouping-content"></div></section>
+    <section id="units" hidden class="activity" aria-label="8. 같은 크기의 조각을 만들어라!"><nav id="units-steps" aria-label="8단계 활동"></nav><div id="units-content"></div></section>    <section id="duel" hidden class="activity" aria-label="9. 분수 대결 — 누가 더 클까?"><nav id="duel-steps" aria-label="9단계 활동"></nav><div id="duel-content"></div></section>    <section id="pieces" hidden class="activity" aria-label="10. 분수 조각을 합쳐라!"><nav id="pieces-steps" aria-label="10단계 활동"></nav><div id="pieces-content"></div></section>    <section id="operations" hidden class="activity" aria-label="11. 조각의 크기를 맞춰라!"><nav id="operations-steps" aria-label="11단계 활동"></nav><div id="operations-content"></div></section>    <section id="master" hidden class="activity" aria-label="12. 분수 마스터 — 네 생각을 증명하라!"><nav id="master-steps" aria-label="12단계 활동"></nav><div id="master-content"></div></section>  </main>
+  <template id="bar-template">
+    <section class="bar-row">
+      <div class="row-heading"><h2></h2><label>분모 <select class="denominators" aria-label="분모"></select></label><button type="button" class="duplicate">복제</button></div>
+      <div class="fraction-bar" role="group" aria-label="색칠할 분수 막대"></div>
+      <div class="result" role="status" aria-live="polite" aria-atomic="true"><output class="fraction"><span class="numerator" aria-hidden="true"></span><span class="fraction-denominator" aria-hidden="true"></span></output><p class="description"></p></div>
+      <p class="change-note" aria-live="polite"></p>
+    </section>
+  </template>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
