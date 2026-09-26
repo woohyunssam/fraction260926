@@ -75,8 +75,9 @@
   }
   // 도형 위의 44px 손잡이는 손가락 드래그와 방향키를 모두 지원합니다.
   function editor(container, shape, data, onChange, guideCount = 0) {
-    const guides = Array.from({length: Math.max(0, guideCount - 1)}, (_, i) =>
-      shape === 'pizza' ? pizzaPosition((i + 1) / guideCount) : (i + 1) / guideCount);
+    const guideDivisions = guideCount * 2;
+    const guides = Array.from({length: Math.max(0, guideDivisions - 1)}, (_, i) =>
+      shape === 'pizza' ? pizzaPosition((i + 1) / guideDivisions) : (i + 1) / guideDivisions);
     const shell = document.createElement('div'); shell.className = `cut-editor ${shape === 'pizza' ? 'pizza-editor' : 'stick-editor'}`;
     const picture = document.createElement('div'); picture.className = 'cut-picture'; shell.append(picture);
     container.append(shell);
@@ -194,7 +195,7 @@
       }
       for(const count of [2,3,4])controls.append(button(`${count}등분`,()=>{data.count=count;show();}));show();
     } else if(stage===4) {
-      intro('선을 추가한 뒤 손잡이를 점선에 맞춰 움직여 보세요. 점선은 같은 크기로 나눌 위치예요. 선을 추가하면 점선도 바뀌어요.');
+      intro('선을 추가하고 점선 중 알맞은 위치를 골라 보세요. 어느 점선을 골라야 조각의 크기가 같아질까요? 선을 추가하면 점선 간격도 바뀌어요.');
       const shapes=area('zero-actions');const model=area();const controls=area('zero-actions');const message=feedback();
       function draw(){model.replaceChildren();editor(model,data.shape,data,()=>{message.textContent='';},Math.max(2,data.cuts.length+1));controls.querySelector('button').disabled=data.cuts.length>=3;}
       for(const [shape,name] of [['bar','막대'],['pizza','피자']])shapes.append(button(name,()=>{data.shape=shape;data.cuts=[];message.textContent='';draw();shapes.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.textContent===name)));}));
@@ -205,7 +206,7 @@
         host.append(button('다음 단계: 1. 분수 만들기 →',()=>document.querySelector('[data-panel="explore"]').click()));
       } else {
         const mission=missions[data.index];intro(`미션 ${data.index+1} · ${mission.text}`);
-        intro('점선은 같은 크기로 나눌 위치예요. 선을 추가하고 손잡이를 점선에 맞춰 보세요.');
+        intro('점선 중 알맞은 위치를 골라 선을 놓아 보세요. 미션의 조각 수와 각 조각의 크기를 함께 확인하세요.');
         const model=area();const controls=area('zero-actions');const message=feedback();
         const next=button(data.index===2?'마지막 결과 보기':'다음 미션',()=>{data.index++;data.cuts=[];data.passed=false;if(data.index===3)data.complete=true;buildStage();});next.hidden=!data.passed;host.append(next);
         function changed(){data.passed=false;next.hidden=true;message.textContent='';}
